@@ -37,3 +37,6 @@ next-env.d.ts
 
 here-s-a-clean-mvp-flickering-pelican.md
 CLAUDE.md
+.claude
+.agents
+skills-lock.json
