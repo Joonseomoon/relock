@@ -8,7 +8,10 @@ export default async function ProblemsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Problems</h1>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Problems</h1>
+        <p className="text-sm text-slate-500 mt-1">{problems.length} problem{problems.length !== 1 ? 's' : ''} in your library</p>
+      </div>
       <ProblemTable problems={problems} />
     </div>
   )

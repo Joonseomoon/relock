@@ -20,7 +20,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <p className="text-sm text-slate-500 mt-1">Track your progress and stay consistent</p>
+      </div>
       <StatsCards stats={stats} />
       <ReviewCard problems={problems} />
     </div>

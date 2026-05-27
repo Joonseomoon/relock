@@ -7,7 +7,9 @@ import { insertReviewLog } from '@/lib/db/reviews'
 
 export async function markAsReviewed(problemId: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthenticated')
   await incrementSolveCount(supabase, problemId)
-  await insertReviewLog(supabase, problemId)
+  await insertReviewLog(supabase, problemId, user.id)
   revalidatePath('/')
 }

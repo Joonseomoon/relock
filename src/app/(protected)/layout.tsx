@@ -10,22 +10,33 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   if (!user) redirect('/login')
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <span className="font-semibold text-lg">ReLock</span>
-          <nav className="flex items-center gap-6 text-sm">
-            <Link href="/" className="hover:text-foreground text-muted-foreground transition-colors">
+    <div className="min-h-screen">
+      <div className="fixed top-4 inset-x-4 z-50">
+        <nav className="glass-nav rounded-xl px-5 h-12 flex items-center justify-between max-w-5xl mx-auto">
+          <Link href="/" className="font-bold text-sm tracking-tight">
+            <span className="text-gradient">ReLock</span>
+          </Link>
+
+          <div className="flex items-center gap-1">
+            <Link
+              href="/"
+              className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-black/[0.04] rounded-lg transition-all duration-200 cursor-pointer"
+            >
               Dashboard
             </Link>
-            <Link href="/problems" className="hover:text-foreground text-muted-foreground transition-colors">
+            <Link
+              href="/problems"
+              className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-black/[0.04] rounded-lg transition-all duration-200 cursor-pointer"
+            >
               Problems
             </Link>
-          </nav>
+          </div>
+
           <SignOutButton />
-        </div>
-      </header>
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+        </nav>
+      </div>
+
+      <main className="max-w-5xl mx-auto w-full px-4 pt-24 pb-12">
         {children}
       </main>
     </div>

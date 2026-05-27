@@ -3,10 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
 
 export default function LoginForm() {
   const router = useRouter()
@@ -45,54 +41,84 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>{mode === 'signin' ? 'Sign in' : 'Create account'}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            />
-          </div>
+    <div className="glass-strong rounded-2xl p-8 w-full max-w-sm">
+      <h2 className="text-lg font-semibold text-slate-900 mb-6">
+        {mode === 'signin' ? 'Welcome back' : 'Create account'}
+      </h2>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          {message && <p className="text-sm text-green-600">{message}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="email" className="block text-xs font-medium text-slate-500 uppercase tracking-wide">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+            className="w-full px-3 py-2.5 rounded-lg text-sm text-slate-900 placeholder-slate-400
+              bg-white/70 border border-slate-200
+              focus:outline-none focus:border-sky-300/80 focus:ring-2 focus:ring-sky-300/30
+              transition-all duration-200"
+          />
+        </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Loading...' : mode === 'signin' ? 'Sign in' : 'Sign up'}
-          </Button>
+        <div className="space-y-1.5">
+          <label htmlFor="password" className="block text-xs font-medium text-slate-500 uppercase tracking-wide">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            placeholder="••••••••"
+            className="w-full px-3 py-2.5 rounded-lg text-sm text-slate-900 placeholder-slate-400
+              bg-white/70 border border-slate-200
+              focus:outline-none focus:border-sky-300/80 focus:ring-2 focus:ring-sky-300/30
+              transition-all duration-200"
+          />
+        </div>
 
-          <p className="text-center text-sm text-muted-foreground">
-            {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
-            <button
-              type="button"
-              className="underline hover:text-foreground"
-              onClick={() => { setError(null); setMessage(null); setMode(mode === 'signin' ? 'signup' : 'signin') }}
-            >
-              {mode === 'signin' ? 'Sign up' : 'Sign in'}
-            </button>
+        {error && (
+          <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            {error}
           </p>
-        </form>
-      </CardContent>
-    </Card>
+        )}
+        {message && (
+          <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+            {message}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2.5 rounded-lg text-sm font-medium text-white
+            bg-sky-300 hover:bg-sky-200 text-sky-950
+            disabled:opacity-50 disabled:cursor-not-allowed
+            transition-all duration-200 cursor-pointer
+            shadow-[0_2px_16px_rgba(125,211,252,0.55)]"
+        >
+          {loading ? 'Loading…' : mode === 'signin' ? 'Sign in' : 'Sign up'}
+        </button>
+
+        <p className="text-center text-xs text-slate-400 pt-1">
+          {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
+          <button
+            type="button"
+            className="text-sky-500 hover:text-sky-400 transition-colors cursor-pointer"
+            onClick={() => { setError(null); setMessage(null); setMode(mode === 'signin' ? 'signup' : 'signin') }}
+          >
+            {mode === 'signin' ? 'Sign up' : 'Sign in'}
+          </button>
+        </p>
+      </form>
+    </div>
   )
 }

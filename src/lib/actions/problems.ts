@@ -6,12 +6,11 @@ import { createProblem, updateProblem, deleteProblem } from '@/lib/db/problems'
 import type { Difficulty } from '@/types'
 
 function parseFormData(formData: FormData) {
-  const topicsRaw = (formData.get('topics') as string) ?? ''
   return {
     title: formData.get('title') as string,
     leetcode_url: (formData.get('leetcode_url') as string) || null,
     difficulty: formData.get('difficulty') as Difficulty,
-    topics: topicsRaw.split(',').map((t) => t.trim()).filter(Boolean),
+    topics: (formData.getAll('topics') as string[]).filter(Boolean),
     trick_note: (formData.get('trick_note') as string) || null,
     solve_count: parseInt(formData.get('solve_count') as string, 10) || 1,
     last_solved_at: null,
