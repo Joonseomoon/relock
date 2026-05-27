@@ -118,6 +118,14 @@ export default function LoginForm() {
             {mode === 'signin' ? 'Sign up' : 'Sign in'}
           </button>
         </p>
+
+        {mode === 'signin' && (
+          <p className="text-center text-xs text-slate-400">
+            <a href="/forgot-password" className="text-sky-500 hover:text-sky-400 transition-colors">
+              Forgot password?
+            </a>
+          </p>
+        )}
       </form>
     </div>
   )

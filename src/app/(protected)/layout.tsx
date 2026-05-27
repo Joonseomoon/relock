@@ -30,6 +30,12 @@ export default async function ProtectedLayout({ children }: { children: React.Re
             >
               Problems
             </Link>
+            <Link
+              href="/settings"
+              className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-900 hover:bg-black/[0.04] rounded-lg transition-all duration-200 cursor-pointer"
+            >
+              Settings
+            </Link>
           </div>
 
           <SignOutButton />
