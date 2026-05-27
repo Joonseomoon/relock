@@ -16,8 +16,10 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
   const router = useRouter()
   const [selected, setSelected] = useState<Problem | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [showHint, setShowHint] = useState(false)
 
   function pick() {
+    setShowHint(false)
     setSelected(getWeightedRandomProblem(problems))
   }
 
@@ -88,23 +90,43 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
               </span>
             </div>
 
-            {selected.topics.length > 0 && (
-              <div className="flex gap-1.5 flex-wrap">
-                {selected.topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200"
+            {(selected.topics.length > 0 || selected.trick_note) && (
+              <div>
+                <button
+                  onClick={() => setShowHint((v) => !v)}
+                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                >
+                  <svg
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${showHint ? 'rotate-90' : ''}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}
                   >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            )}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                  {showHint ? 'Hide hint' : 'Show hint'}
+                </button>
 
-            {selected.trick_note && (
-              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Trick / Insight</p>
-                <p className="text-sm text-slate-700 leading-relaxed">{selected.trick_note}</p>
+                {showHint && (
+                  <div className="mt-3 space-y-3">
+                    {selected.topics.length > 0 && (
+                      <div className="flex gap-1.5 flex-wrap">
+                        {selected.topics.map((topic) => (
+                          <span
+                            key={topic}
+                            className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200"
+                          >
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {selected.trick_note && (
+                      <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Trick / Insight</p>
+                        <p className="text-sm text-slate-700 leading-relaxed">{selected.trick_note}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
