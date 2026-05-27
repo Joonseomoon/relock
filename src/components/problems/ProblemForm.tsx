@@ -1,8 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { createProblemAction, updateProblemAction } from '@/lib/actions/problems'
 import type { Problem } from '@/types'
+
+function SubmitButton({ isEdit }: { isEdit: boolean }) {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="px-4 py-2 rounded-lg text-sm font-medium text-sky-950
+        bg-sky-300 hover:bg-sky-200
+        disabled:opacity-50 disabled:cursor-not-allowed
+        transition-all duration-200 cursor-pointer
+        shadow-[0_2px_12px_rgba(125,211,252,0.55)]"
+    >
+      {pending ? 'Saving…' : isEdit ? 'Save changes' : 'Add problem'}
+    </button>
+  )
+}
 
 interface Props {
   problem?: Problem
@@ -39,6 +57,7 @@ export const TOPICS = [
 
 export default function ProblemForm({ problem, onClose }: Props) {
   const [selectedTopics, setSelectedTopics] = useState<string[]>(problem?.topics ?? [])
+  const submittingRef = useRef(false)
 
   function toggleTopic(topic: string) {
     setSelectedTopics((prev) =>
@@ -47,7 +66,8 @@ export default function ProblemForm({ problem, onClose }: Props) {
   }
 
   async function handleSubmit(formData: FormData) {
-    // Inject selected topics as repeated fields
+    if (submittingRef.current) return
+    submittingRef.current = true
     selectedTopics.forEach((t) => formData.append('topics', t))
     if (problem) {
       await updateProblemAction(problem.id, formData)
@@ -160,15 +180,7 @@ export default function ProblemForm({ problem, onClose }: Props) {
         >
           Cancel
         </button>
-        <button
-          type="submit"
-          className="px-4 py-2 rounded-lg text-sm font-medium text-sky-950
-            bg-sky-300 hover:bg-sky-200
-            transition-all duration-200 cursor-pointer
-            shadow-[0_2px_12px_rgba(125,211,252,0.55)]"
-        >
-          {problem ? 'Save changes' : 'Add problem'}
-        </button>
+        <SubmitButton isEdit={!!problem} />
       </div>
     </form>
   )
