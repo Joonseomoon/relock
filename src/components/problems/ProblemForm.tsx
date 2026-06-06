@@ -55,8 +55,17 @@ export const TOPICS = [
   'Math & Geometry',
 ] as const
 
+const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const
+
+const difficultyStyles: Record<string, { active: string; idle: string }> = {
+  Easy:   { active: 'bg-green-100 text-green-700 border-green-300', idle: 'bg-white text-slate-500 border-slate-200 hover:border-green-200 hover:text-green-600' },
+  Medium: { active: 'bg-amber-100 text-amber-700 border-amber-300', idle: 'bg-white text-slate-500 border-slate-200 hover:border-amber-200 hover:text-amber-600' },
+  Hard:   { active: 'bg-red-100 text-red-700 border-red-300',       idle: 'bg-white text-slate-500 border-slate-200 hover:border-red-200 hover:text-red-600' },
+}
+
 export default function ProblemForm({ problem, onClose }: Props) {
   const [selectedTopics, setSelectedTopics] = useState<string[]>(problem?.topics ?? [])
+  const [difficulty, setDifficulty] = useState<string>(problem?.difficulty ?? 'Medium')
   const submittingRef = useRef(false)
 
   function toggleTopic(topic: string) {
@@ -78,7 +87,9 @@ export default function ProblemForm({ problem, onClose }: Props) {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto pr-1">
+    <form action={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto px-1">
+
+      {/* Row 1: Title */}
       <div>
         <label htmlFor="title" className={labelClass}>Title *</label>
         <input
@@ -91,37 +102,58 @@ export default function ProblemForm({ problem, onClose }: Props) {
         />
       </div>
 
-      <div>
-        <label htmlFor="leetcode_url" className={labelClass}>LeetCode URL</label>
-        <input
-          id="leetcode_url"
-          name="leetcode_url"
-          type="url"
-          defaultValue={problem?.leetcode_url ?? ''}
-          placeholder="https://leetcode.com/problems/..."
-          className={inputClass}
-        />
+      {/* Row 2: URL + Difficulty + Solves */}
+      <div className="grid grid-cols-[1fr_200px_68px] gap-3">
+        <div>
+          <label htmlFor="leetcode_url" className={labelClass}>LeetCode URL</label>
+          <input
+            id="leetcode_url"
+            name="leetcode_url"
+            type="url"
+            defaultValue={problem?.leetcode_url ?? ''}
+            placeholder="https://leetcode.com/problems/..."
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <span className={labelClass}>Difficulty *</span>
+          <input type="hidden" name="difficulty" value={difficulty} />
+          <div className="flex gap-1.5 p-1.5 rounded-lg bg-slate-50 border border-slate-200">
+            {DIFFICULTIES.map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDifficulty(d)}
+                className={`flex-1 py-1.5 rounded-md text-xs font-semibold border transition-all duration-150 cursor-pointer
+                  ${difficulty === d ? difficultyStyles[d].active : difficultyStyles[d].idle}`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label htmlFor="solve_count" className={labelClass}>Solves</label>
+          <input
+            id="solve_count"
+            name="solve_count"
+            type="number"
+            min={1}
+            defaultValue={problem?.solve_count ?? 1}
+            className={inputClass}
+          />
+        </div>
       </div>
 
+      {/* Row 4: Topics */}
       <div>
-        <label htmlFor="difficulty" className={labelClass}>Difficulty *</label>
-        <select
-          id="difficulty"
-          name="difficulty"
-          defaultValue={problem?.difficulty ?? 'Medium'}
-          required
-          className={`${inputClass} cursor-pointer`}
-        >
-          <option value="Easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-        </select>
-      </div>
-
-      {/* Topics multi-select */}
-      <div>
-        <span className={labelClass}>Topics</span>
-        <div className="flex flex-wrap gap-1.5 p-3 rounded-lg bg-slate-50 border border-slate-200">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className={labelClass} style={{ marginBottom: 0 }}>Topics</span>
+          {selectedTopics.length > 0 && (
+            <span className="text-xs text-sky-500 font-medium">{selectedTopics.length} selected</span>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1.5 p-2.5 rounded-lg bg-slate-50 border border-slate-200">
           {TOPICS.map((topic) => {
             const active = selectedTopics.includes(topic)
             return (
@@ -129,7 +161,7 @@ export default function ProblemForm({ problem, onClose }: Props) {
                 key={topic}
                 type="button"
                 onClick={() => toggleTopic(topic)}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer
+                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer whitespace-nowrap
                   ${active
                     ? 'bg-sky-100 text-sky-700 border-sky-300'
                     : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700'
@@ -140,36 +172,23 @@ export default function ProblemForm({ problem, onClose }: Props) {
             )
           })}
         </div>
-        {selectedTopics.length > 0 && (
-          <p className="mt-1 text-xs text-slate-400">{selectedTopics.length} selected</p>
-        )}
       </div>
 
+      {/* Row 5: Trick / Insight */}
       <div>
         <label htmlFor="trick_note" className={labelClass}>Trick / Insight</label>
         <textarea
           id="trick_note"
           name="trick_note"
-          rows={5}
+          rows={3}
           defaultValue={problem?.trick_note ?? ''}
           placeholder="Key insight or pattern to remember…"
           className={`${inputClass} resize-y`}
         />
       </div>
 
-      <div>
-        <label htmlFor="solve_count" className={labelClass}>Solve Count</label>
-        <input
-          id="solve_count"
-          name="solve_count"
-          type="number"
-          min={1}
-          defaultValue={problem?.solve_count ?? 1}
-          className={inputClass}
-        />
-      </div>
-
-      <div className="flex justify-end gap-2 pt-2 sticky bottom-0 bg-white pb-1">
+      {/* Footer */}
+      <div className="flex justify-end gap-2 pt-1 sticky bottom-0 bg-white/95 backdrop-blur-sm pb-1">
         <button
           type="button"
           onClick={onClose}
