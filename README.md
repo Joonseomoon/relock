@@ -6,15 +6,16 @@ A spaced-repetition LeetCode review tracker. Save problems with trick/insight no
 
 ## Features
 
-- **Weighted random review** — problems with fewer solves appear more often (`weight = 1 / (solve_count + 1)`)
-- **Problem tracker** — add problems with difficulty, NeetCode-roadmap topics, and trick notes
+- **Weighted random review** — problems surface more often the fewer times they've been solved, the more they've relied on a hint, and the longer it's been since their last review
+- **Problem tracker** — add problems with difficulty, NeetCode-roadmap topics, and trick notes; search by title, filter, and sort
 - **Hide/show columns** — toggle topics and trick notes columns for a cleaner view
+- **Delete confirmation** — deleting a problem requires an explicit confirm, so a stray click can't wipe a record
 - **Stats dashboard** — streak, total problems, and today's review count
 - **Auth** — email + password via Supabase, per-user data isolation with RLS
 
 ## Stack
 
-- [Next.js 14](https://nextjs.org) (App Router)
+- [Next.js 16](https://nextjs.org) (App Router)
 - [Supabase](https://supabase.com) — Auth + Postgres
 - [Tailwind CSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
 
@@ -25,8 +26,7 @@ A spaced-repetition LeetCode review tracker. Save problems with trick/insight no
 npm install
 
 # 2. Add environment variables
-cp .env.local.example .env.local
-# Fill in NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Create .env.local with the variables listed below
 
 # 3. Start dev server
 npm run dev
@@ -40,3 +40,7 @@ Open [http://localhost:3000](http://localhost:3000).
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key |
+
+## Future development
+
+- **History view** — surface a per-problem activity timeline (review logs, hint usage, and when a problem was added/edited/deleted) instead of only using review logs internally for streak/stats calculation.
