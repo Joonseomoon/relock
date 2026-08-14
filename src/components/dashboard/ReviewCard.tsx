@@ -49,7 +49,7 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
         {selected && (
           <button
             onClick={pick}
-            className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
+            className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 transition-all duration-150 active:scale-[0.97] cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -67,7 +67,7 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
             className="px-4 py-2 rounded-lg text-sm font-medium text-white
               bg-sky-300 hover:bg-sky-200 text-sky-950
               disabled:opacity-40 disabled:cursor-not-allowed
-              transition-all duration-200 cursor-pointer
+              transition-all duration-200 active:scale-[0.97] cursor-pointer
               shadow-[0_2px_16px_rgba(125,211,252,0.55)]"
           >
             Get Review Problem
@@ -104,7 +104,7 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
               <div>
                 <button
                   onClick={toggleHint}
-                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 transition-all duration-150 active:scale-[0.97] cursor-pointer"
                 >
                   <svg
                     className={`w-3.5 h-3.5 transition-transform duration-200 ${showHint ? 'rotate-90' : ''}`}
@@ -155,7 +155,7 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
               className="px-4 py-2 rounded-lg text-sm font-medium text-sky-950
                 bg-sky-300 hover:bg-sky-200
                 disabled:opacity-50 disabled:cursor-not-allowed
-                transition-all duration-200 cursor-pointer
+                transition-all duration-200 active:scale-[0.97] cursor-pointer
                 shadow-[0_2px_16px_rgba(125,211,252,0.55)]"
             >
               {isPending ? 'Saving…' : 'Mark as Reviewed'}
@@ -165,7 +165,7 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
               className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600
                 hover:text-slate-900 hover:bg-slate-100
                 border border-slate-200
-                transition-all duration-200 cursor-pointer"
+                transition-all duration-200 active:scale-[0.97] cursor-pointer"
             >
               Dismiss
             </button>
