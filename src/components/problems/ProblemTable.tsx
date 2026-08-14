@@ -1,22 +1,35 @@
 'use client'
 
-import { useState, useTransition, useMemo } from 'react'
+import { useState, useSyncExternalStore, useTransition, useMemo } from 'react'
+
+const localStorageListeners = new Map<string, Set<() => void>>()
+
+function subscribeToLocalStorage(key: string, callback: () => void) {
+  if (!localStorageListeners.has(key)) localStorageListeners.set(key, new Set())
+  const set = localStorageListeners.get(key)!
+  set.add(callback)
+  return () => set.delete(callback)
+}
+
+function readLocalStorage<T>(key: string, initial: T): T {
+  try {
+    const stored = localStorage.getItem(key)
+    if (stored !== null) return JSON.parse(stored) as T
+  } catch {}
+  return initial
+}
 
 function useLocalStorage<T>(key: string, initial: T) {
-  const [value, setValue] = useState<T>(() => {
-    try {
-      const stored = localStorage.getItem(key)
-      if (stored !== null) return JSON.parse(stored) as T
-    } catch {}
-    return initial
-  })
+  const value = useSyncExternalStore(
+    (callback) => subscribeToLocalStorage(key, callback),
+    () => readLocalStorage(key, initial),
+    () => initial
+  )
 
   function set(next: T | ((prev: T) => T)) {
-    setValue((prev) => {
-      const resolved = typeof next === 'function' ? (next as (p: T) => T)(prev) : next
-      try { localStorage.setItem(key, JSON.stringify(resolved)) } catch {}
-      return resolved
-    })
+    const resolved = typeof next === 'function' ? (next as (p: T) => T)(readLocalStorage(key, initial)) : next
+    try { localStorage.setItem(key, JSON.stringify(resolved)) } catch {}
+    localStorageListeners.get(key)?.forEach((cb) => cb())
   }
 
   return [value, set] as const

@@ -89,29 +89,16 @@ export default function ProblemForm({ problem, onClose }: Props) {
   return (
     <form action={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto px-1">
 
-      {/* Row 1: Title */}
-      <div>
-        <label htmlFor="title" className={labelClass}>Title *</label>
-        <input
-          id="title"
-          name="title"
-          required
-          defaultValue={problem?.title}
-          placeholder="Two Sum"
-          className={inputClass}
-        />
-      </div>
-
-      {/* Row 2: URL + Difficulty + Solves */}
-      <div className="grid grid-cols-[1fr_200px_68px] gap-3">
+      {/* Row 1: Title + Difficulty */}
+      <div className="grid grid-cols-[1fr_200px] gap-3">
         <div>
-          <label htmlFor="leetcode_url" className={labelClass}>LeetCode URL</label>
+          <label htmlFor="title" className={labelClass}>Title *</label>
           <input
-            id="leetcode_url"
-            name="leetcode_url"
-            type="url"
-            defaultValue={problem?.leetcode_url ?? ''}
-            placeholder="https://leetcode.com/problems/..."
+            id="title"
+            name="title"
+            required
+            defaultValue={problem?.title}
+            placeholder="Two Sum"
             className={inputClass}
           />
         </div>
@@ -131,6 +118,31 @@ export default function ProblemForm({ problem, onClose }: Props) {
               </button>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Row 2: URL + Last Reviewed + Solves */}
+      <div className="grid grid-cols-[1fr_160px_68px] gap-3">
+        <div>
+          <label htmlFor="leetcode_url" className={labelClass}>LeetCode URL</label>
+          <input
+            id="leetcode_url"
+            name="leetcode_url"
+            type="url"
+            defaultValue={problem?.leetcode_url ?? ''}
+            placeholder="https://leetcode.com/problems/..."
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor="last_solved_at" className={labelClass}>Last Reviewed</label>
+          <input
+            id="last_solved_at"
+            name="last_solved_at"
+            type="date"
+            defaultValue={problem?.last_solved_at ?? ''}
+            className={`${inputClass} [color-scheme:light]`}
+          />
         </div>
         <div>
           <label htmlFor="solve_count" className={labelClass}>Solves</label>
