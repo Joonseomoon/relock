@@ -13,7 +13,7 @@ function parseFormData(formData: FormData) {
     topics: (formData.getAll('topics') as string[]).filter(Boolean),
     trick_note: (formData.get('trick_note') as string) || null,
     solve_count: parseInt(formData.get('solve_count') as string, 10) || 1,
-    last_solved_at: null,
+    last_solved_at: (formData.get('last_solved_at') as string) || null,
   }
 }
 
