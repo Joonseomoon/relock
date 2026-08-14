@@ -100,6 +100,7 @@ function sortProblems(problems: Problem[], key: SortKey): Problem[] {
 export default function ProblemTable({ problems }: { problems: Problem[] }) {
   const [diffFilter, setDiffFilter] = useLocalStorage<Difficulty | 'All'>('relock:diff', 'All')
   const [topicFilter, setTopicFilter] = useLocalStorage<string>('relock:topic', 'All')
+  const [titleQuery, setTitleQuery] = useLocalStorage<string>('relock:titleQuery', '')
   const [sortKey, setSortKey] = useLocalStorage<SortKey>('relock:sort', 'title_asc')
   const [hideTopics, setHideTopics] = useLocalStorage<boolean>('relock:hideTopics', false)
   const [hideTrickNotes, setHideTrickNotes] = useLocalStorage<boolean>('relock:hideTrickNotes', false)
@@ -118,8 +119,12 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
     let result = problems
     if (diffFilter !== 'All') result = result.filter((p) => p.difficulty === diffFilter)
     if (topicFilter !== 'All') result = result.filter((p) => p.topics.includes(topicFilter))
+    if (titleQuery.trim()) {
+      const q = titleQuery.trim().toLowerCase()
+      result = result.filter((p) => p.title.toLowerCase().includes(q))
+    }
     return sortProblems(result, sortKey)
-  }, [problems, diffFilter, topicFilter, sortKey])
+  }, [problems, diffFilter, topicFilter, titleQuery, sortKey])
 
   const totalPages = Math.max(1, Math.ceil(processed.length / PAGE_SIZE))
   const paginated = processed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -131,6 +136,11 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
 
   function applyTopicFilter(topic: string) {
     setTopicFilter(topic)
+    setPage(1)
+  }
+
+  function applyTitleQuery(query: string) {
+    setTitleQuery(query)
     setPage(1)
   }
 
@@ -258,55 +268,68 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
         </button>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-500
-              hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
-          >
-            ← Prev
-          </button>
+      {/* Search + Pagination */}
+      <div className="flex items-center justify-between gap-2">
+        {/* Title search */}
+        <input
+          type="text"
+          value={titleQuery}
+          onChange={(e) => applyTitleQuery(e.target.value)}
+          placeholder="Search by title…"
+          className="flex-1 text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white/80 text-slate-700
+            placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-200
+            transition-all duration-200 ease-out"
+        />
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
-            .reduce<(number | '…')[]>((acc, p, idx, arr) => {
-              if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('…')
-              acc.push(p)
-              return acc
-            }, [])
-            .map((item, i) =>
-              item === '…' ? (
-                <span key={`ellipsis-${i}`} className="px-1.5 text-xs text-slate-300">…</span>
-              ) : (
-                <button
-                  key={item}
-                  onClick={() => setPage(item as number)}
-                  className={`w-7 h-7 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer
-                    ${page === item
-                      ? 'bg-sky-300 text-sky-950 shadow-sm'
-                      : 'border border-slate-200 text-slate-500 hover:bg-slate-50'
-                    }`}
-                >
-                  {item}
-                </button>
-              )
-            )}
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-500
+                hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+            >
+              ← Prev
+            </button>
 
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-500
-              hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
-          >
-            Next →
-          </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+              .reduce<(number | '…')[]>((acc, p, idx, arr) => {
+                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('…')
+                acc.push(p)
+                return acc
+              }, [])
+              .map((item, i) =>
+                item === '…' ? (
+                  <span key={`ellipsis-${i}`} className="px-1.5 text-xs text-slate-300">…</span>
+                ) : (
+                  <button
+                    key={item}
+                    onClick={() => setPage(item as number)}
+                    className={`w-7 h-7 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer
+                      ${page === item
+                        ? 'bg-sky-300 text-sky-950 shadow-sm'
+                        : 'border border-slate-200 text-slate-500 hover:bg-slate-50'
+                      }`}
+                  >
+                    {item}
+                  </button>
+                )
+              )}
 
-          <span className="ml-2 text-xs text-slate-400">page {page} of {totalPages}</span>
-        </div>
-      )}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-500
+                hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+            >
+              Next →
+            </button>
+
+            <span className="ml-2 text-xs text-slate-400">page {page} of {totalPages}</span>
+          </div>
+        )}
+      </div>
 
       {/* Table */}
       <div className="glass-strong rounded-xl overflow-hidden">
