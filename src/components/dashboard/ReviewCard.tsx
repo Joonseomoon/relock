@@ -17,16 +17,26 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
   const [selected, setSelected] = useState<Problem | null>(null)
   const [isPending, startTransition] = useTransition()
   const [showHint, setShowHint] = useState(false)
+  const [hasRevealedHint, setHasRevealedHint] = useState(false)
 
   function pick() {
     setShowHint(false)
+    setHasRevealedHint(false)
     setSelected(getWeightedRandomProblem(problems))
+  }
+
+  function toggleHint() {
+    setShowHint((v) => {
+      const next = !v
+      if (next) setHasRevealedHint(true)
+      return next
+    })
   }
 
   function handleMarkReviewed() {
     if (!selected) return
     startTransition(async () => {
-      await markAsReviewed(selected.id)
+      await markAsReviewed(selected.id, hasRevealedHint)
       setSelected(null)
       router.refresh()
     })
@@ -93,7 +103,7 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
             {(selected.topics.length > 0 || selected.trick_note) && (
               <div>
                 <button
-                  onClick={() => setShowHint((v) => !v)}
+                  onClick={toggleHint}
                   className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
                 >
                   <svg
@@ -138,7 +148,7 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
             </div>
           </div>
 
-          <div className="flex gap-2 pt-1">
+          <div className="flex items-center gap-3 pt-1">
             <button
               onClick={handleMarkReviewed}
               disabled={isPending}
@@ -159,6 +169,9 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
             >
               Dismiss
             </button>
+            {hasRevealedHint && (
+              <span className="text-xs text-amber-600">Will log as reviewed with hint</span>
+            )}
           </div>
         </div>
       )}

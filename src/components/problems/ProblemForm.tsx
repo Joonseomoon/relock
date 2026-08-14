@@ -121,8 +121,8 @@ export default function ProblemForm({ problem, onClose }: Props) {
         </div>
       </div>
 
-      {/* Row 2: URL + Last Reviewed + Solves */}
-      <div className="grid grid-cols-[1fr_160px_68px] gap-3">
+      {/* Row 2: URL + Last Reviewed + Solves + Hint Solves */}
+      <div className="grid grid-cols-[1fr_140px_60px_60px] gap-3">
         <div>
           <label htmlFor="leetcode_url" className={labelClass}>LeetCode URL</label>
           <input
@@ -152,6 +152,17 @@ export default function ProblemForm({ problem, onClose }: Props) {
             type="number"
             min={1}
             defaultValue={problem?.solve_count ?? 1}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor="hint_count" className={labelClass}>Hints</label>
+          <input
+            id="hint_count"
+            name="hint_count"
+            type="number"
+            min={0}
+            defaultValue={problem?.hint_count ?? 0}
             className={inputClass}
           />
         </div>

@@ -9,6 +9,7 @@ export interface Problem {
   topics: string[]
   trick_note: string | null
   solve_count: number
+  hint_count: number
   last_solved_at: string | null
   created_at: string
 }
@@ -18,6 +19,7 @@ export interface ReviewLog {
   user_id: string
   problem_id: string
   reviewed_at: string
+  used_hint: boolean
   created_at: string
 }
 

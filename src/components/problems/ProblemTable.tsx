@@ -422,6 +422,14 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
 
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <span className="text-sm font-medium text-slate-700">{problem.solve_count}</span>
+                      {problem.hint_count > 0 && (
+                        <span
+                          title={`Reviewed with a hint ${problem.hint_count} time${problem.hint_count !== 1 ? 's' : ''}`}
+                          className="ml-1.5 text-[11px] font-medium text-amber-600"
+                        >
+                          ({problem.hint_count} hint{problem.hint_count !== 1 ? 's' : ''})
+                        </span>
+                      )}
                     </td>
 
                     <td className="px-4 py-3 whitespace-nowrap">
