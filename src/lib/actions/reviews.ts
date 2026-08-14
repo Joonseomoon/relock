@@ -5,11 +5,11 @@ import { createClient } from '@/lib/supabase/server'
 import { incrementSolveCount } from '@/lib/db/problems'
 import { insertReviewLog } from '@/lib/db/reviews'
 
-export async function markAsReviewed(problemId: string) {
+export async function markAsReviewed(problemId: string, usedHint: boolean) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')
-  await incrementSolveCount(supabase, problemId)
-  await insertReviewLog(supabase, problemId, user.id)
+  await incrementSolveCount(supabase, problemId, usedHint)
+  await insertReviewLog(supabase, problemId, user.id, usedHint)
   revalidatePath('/')
 }

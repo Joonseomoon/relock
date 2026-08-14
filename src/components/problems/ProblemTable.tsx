@@ -37,6 +37,8 @@ function useLocalStorage<T>(key: string, initial: T) {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -107,7 +109,8 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
   const [page, setPage] = useState(1)
   const [editTarget, setEditTarget] = useState<Problem | null>(null)
   const [addOpen, setAddOpen] = useState(false)
-  const [, startTransition] = useTransition()
+  const [deleteTarget, setDeleteTarget] = useState<Problem | null>(null)
+  const [isDeleting, startTransition] = useTransition()
 
   const allTopics = useMemo(() => {
     const set = new Set<string>()
@@ -149,8 +152,13 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
     setPage(1)
   }
 
-  function handleDelete(id: string) {
-    startTransition(() => deleteProblemAction(id))
+  function confirmDelete() {
+    if (!deleteTarget) return
+    const id = deleteTarget.id
+    startTransition(async () => {
+      await deleteProblemAction(id)
+      setDeleteTarget(null)
+    })
   }
 
   return (
@@ -163,7 +171,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
             <button
               key={value}
               onClick={() => applyFilter(value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 cursor-pointer
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 active:scale-[0.97] cursor-pointer
                 ${diffFilter === value
                   ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
@@ -225,7 +233,8 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
         <button
           onClick={() => setHideTopics((v) => !v)}
           title={hideTopics ? 'Show topics' : 'Hide topics'}
-          className={`p-1.5 rounded-lg border transition-all duration-200 cursor-pointer
+          aria-label={hideTopics ? 'Show topics' : 'Hide topics'}
+          className={`p-1.5 rounded-lg border transition-all duration-200 active:scale-[0.97] cursor-pointer
             ${hideTopics
               ? 'border-slate-200 text-slate-300 bg-slate-50'
               : 'border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 bg-white/80'
@@ -241,7 +250,8 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
         <button
           onClick={() => setHideTrickNotes((v) => !v)}
           title={hideTrickNotes ? 'Show trick notes' : 'Hide trick notes'}
-          className={`p-1.5 rounded-lg border transition-all duration-200 cursor-pointer
+          aria-label={hideTrickNotes ? 'Show trick notes' : 'Hide trick notes'}
+          className={`p-1.5 rounded-lg border transition-all duration-200 active:scale-[0.97] cursor-pointer
             ${hideTrickNotes
               ? 'border-slate-200 text-slate-300 bg-slate-50'
               : 'border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 bg-white/80'
@@ -257,7 +267,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
           onClick={() => setAddOpen(true)}
           className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-sky-950
             bg-sky-300 hover:bg-sky-200
-            transition-all duration-200 cursor-pointer
+            transition-all duration-200 active:scale-[0.97] cursor-pointer
             shadow-[0_2px_12px_rgba(125,211,252,0.55)]
             flex items-center gap-1.5"
         >
@@ -287,7 +297,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               className="px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-500
-                hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.97] cursor-pointer"
             >
               ← Prev
             </button>
@@ -306,7 +316,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
                   <button
                     key={item}
                     onClick={() => setPage(item as number)}
-                    className={`w-7 h-7 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer
+                    className={`w-7 h-7 rounded-lg text-xs font-medium transition-all duration-200 active:scale-[0.97] cursor-pointer
                       ${page === item
                         ? 'bg-sky-300 text-sky-950 shadow-sm'
                         : 'border border-slate-200 text-slate-500 hover:bg-slate-50'
@@ -321,7 +331,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-500
-                hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 active:scale-[0.97] cursor-pointer"
             >
               Next →
             </button>
@@ -399,7 +409,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
                             <button
                               key={t}
                               onClick={() => applyTopicFilter(topicFilter === t ? 'All' : t)}
-                              className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors cursor-pointer
+                              className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap transition-all duration-150 active:scale-[0.97] cursor-pointer
                                 ${topicFilter === t
                                   ? 'bg-sky-100 text-sky-700 border-sky-300'
                                   : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-sky-50 hover:text-sky-600 hover:border-sky-200'
@@ -422,6 +432,14 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
 
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <span className="text-sm font-medium text-slate-700">{problem.solve_count}</span>
+                      {problem.hint_count > 0 && (
+                        <span
+                          title={`Reviewed with a hint ${problem.hint_count} time${problem.hint_count !== 1 ? 's' : ''}`}
+                          className="ml-1.5 text-[11px] font-medium text-amber-600"
+                        >
+                          ({problem.hint_count} hint{problem.hint_count !== 1 ? 's' : ''})
+                        </span>
+                      )}
                     </td>
 
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -434,17 +452,19 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                         <button
                           onClick={() => setEditTarget(problem)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-150 cursor-pointer"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-150 active:scale-[0.97] cursor-pointer"
                           title="Edit"
+                          aria-label={`Edit ${problem.title}`}
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleDelete(problem.id)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-150 cursor-pointer"
+                          onClick={() => setDeleteTarget(problem)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all duration-150 active:scale-[0.97] cursor-pointer"
                           title="Delete"
+                          aria-label={`Delete ${problem.title}`}
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -479,6 +499,43 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
           {editTarget && (
             <ProblemForm problem={editTarget} onClose={() => setEditTarget(null)} />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="bg-white border-slate-200 text-slate-900">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900">Delete problem?</DialogTitle>
+            <DialogDescription>
+              {deleteTarget && (
+                <>This will permanently delete <span className="font-medium text-slate-700">{deleteTarget.title}</span> and its review history. This can&apos;t be undone.</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600
+                hover:text-slate-900 hover:bg-slate-100
+                border border-slate-200
+                transition-all duration-200 active:scale-[0.97] cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-white
+                bg-red-600 hover:bg-red-700
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transition-all duration-200 active:scale-[0.97] cursor-pointer"
+            >
+              {isDeleting ? 'Deleting…' : 'Delete'}
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

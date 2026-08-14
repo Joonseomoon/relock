@@ -14,7 +14,7 @@ function SubmitButton({ isEdit }: { isEdit: boolean }) {
       className="px-4 py-2 rounded-lg text-sm font-medium text-sky-950
         bg-sky-300 hover:bg-sky-200
         disabled:opacity-50 disabled:cursor-not-allowed
-        transition-all duration-200 cursor-pointer
+        transition-all duration-200 active:scale-[0.97] cursor-pointer
         shadow-[0_2px_12px_rgba(125,211,252,0.55)]"
     >
       {pending ? 'Saving…' : isEdit ? 'Save changes' : 'Add problem'}
@@ -111,7 +111,7 @@ export default function ProblemForm({ problem, onClose }: Props) {
                 key={d}
                 type="button"
                 onClick={() => setDifficulty(d)}
-                className={`flex-1 py-1.5 rounded-md text-xs font-semibold border transition-all duration-150 cursor-pointer
+                className={`flex-1 py-1.5 rounded-md text-xs font-semibold border transition-all duration-150 active:scale-[0.97] cursor-pointer
                   ${difficulty === d ? difficultyStyles[d].active : difficultyStyles[d].idle}`}
               >
                 {d}
@@ -121,8 +121,8 @@ export default function ProblemForm({ problem, onClose }: Props) {
         </div>
       </div>
 
-      {/* Row 2: URL + Last Reviewed + Solves */}
-      <div className="grid grid-cols-[1fr_160px_68px] gap-3">
+      {/* Row 2: URL + Last Reviewed + Solves + Hint Solves */}
+      <div className="grid grid-cols-[1fr_140px_60px_60px] gap-3">
         <div>
           <label htmlFor="leetcode_url" className={labelClass}>LeetCode URL</label>
           <input
@@ -155,6 +155,17 @@ export default function ProblemForm({ problem, onClose }: Props) {
             className={inputClass}
           />
         </div>
+        <div>
+          <label htmlFor="hint_count" className={labelClass}>Hints</label>
+          <input
+            id="hint_count"
+            name="hint_count"
+            type="number"
+            min={0}
+            defaultValue={problem?.hint_count ?? 0}
+            className={inputClass}
+          />
+        </div>
       </div>
 
       {/* Row 4: Topics */}
@@ -173,7 +184,7 @@ export default function ProblemForm({ problem, onClose }: Props) {
                 key={topic}
                 type="button"
                 onClick={() => toggleTopic(topic)}
-                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer whitespace-nowrap
+                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all duration-150 active:scale-[0.97] cursor-pointer whitespace-nowrap
                   ${active
                     ? 'bg-sky-100 text-sky-700 border-sky-300'
                     : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700'
@@ -207,7 +218,7 @@ export default function ProblemForm({ problem, onClose }: Props) {
           className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600
             hover:text-slate-900 hover:bg-slate-100
             border border-slate-200
-            transition-all duration-200 cursor-pointer"
+            transition-all duration-200 active:scale-[0.97] cursor-pointer"
         >
           Cancel
         </button>

@@ -98,7 +98,7 @@ export default function SettingsPage() {
               className="px-4 py-2 rounded-lg text-sm font-medium text-sky-950
                 bg-sky-300 hover:bg-sky-200
                 disabled:opacity-50 disabled:cursor-not-allowed
-                transition-all duration-200 cursor-pointer
+                transition-all duration-200 active:scale-[0.97] cursor-pointer
                 shadow-[0_2px_12px_rgba(125,211,252,0.55)]"
             >
               {loading ? 'Saving…' : 'Update password'}
