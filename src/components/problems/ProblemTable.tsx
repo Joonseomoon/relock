@@ -1,16 +1,15 @@
 'use client'
 
-import { useState, useEffect, useTransition, useMemo } from 'react'
+import { useState, useTransition, useMemo } from 'react'
 
 function useLocalStorage<T>(key: string, initial: T) {
-  const [value, setValue] = useState<T>(initial)
-
-  useEffect(() => {
+  const [value, setValue] = useState<T>(() => {
     try {
       const stored = localStorage.getItem(key)
-      if (stored !== null) setValue(JSON.parse(stored) as T)
+      if (stored !== null) return JSON.parse(stored) as T
     } catch {}
-  }, [key])
+    return initial
+  })
 
   function set(next: T | ((prev: T) => T)) {
     setValue((prev) => {
