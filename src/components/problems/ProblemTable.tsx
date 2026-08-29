@@ -102,7 +102,8 @@ function sortProblems(problems: Problem[], key: SortKey): Problem[] {
 export default function ProblemTable({ problems }: { problems: Problem[] }) {
   const [diffFilter, setDiffFilter] = useLocalStorage<Difficulty | 'All'>('relock:diff', 'All')
   const [topicFilter, setTopicFilter] = useLocalStorage<string>('relock:topic', 'All')
-  const [titleQuery, setTitleQuery] = useLocalStorage<string>('relock:titleQuery', '')
+  // Search query is intentionally NOT persisted — it resets on reload and page navigation.
+  const [titleQuery, setTitleQuery] = useState('')
   const [sortKey, setSortKey] = useLocalStorage<SortKey>('relock:sort', 'title_asc')
   const [hideTopics, setHideTopics] = useLocalStorage<boolean>('relock:hideTopics', false)
   const [hideTrickNotes, setHideTrickNotes] = useLocalStorage<boolean>('relock:hideTrickNotes', false)
