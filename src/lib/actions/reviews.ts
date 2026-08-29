@@ -12,4 +12,5 @@ export async function markAsReviewed(problemId: string, usedHint: boolean) {
   await incrementSolveCount(supabase, problemId, usedHint)
   await insertReviewLog(supabase, problemId, user.id, usedHint)
   revalidatePath('/')
+  revalidatePath('/problems')
 }

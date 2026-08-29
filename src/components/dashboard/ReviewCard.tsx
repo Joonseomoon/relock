@@ -17,28 +17,28 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
   const [selected, setSelected] = useState<Problem | null>(null)
   const [isPending, startTransition] = useTransition()
   const [showHint, setShowHint] = useState(false)
-  const [hasRevealedHint, setHasRevealedHint] = useState(false)
+  const [submittingHint, setSubmittingHint] = useState<boolean | null>(null)
 
   function pick() {
     setShowHint(false)
-    setHasRevealedHint(false)
     setSelected(getWeightedRandomProblem(problems))
   }
 
   function toggleHint() {
-    setShowHint((v) => {
-      const next = !v
-      if (next) setHasRevealedHint(true)
-      return next
-    })
+    setShowHint((v) => !v)
   }
 
-  function handleMarkReviewed() {
+  function handleMarkReviewed(usedHint: boolean) {
     if (!selected) return
+    setSubmittingHint(usedHint)
     startTransition(async () => {
-      await markAsReviewed(selected.id, hasRevealedHint)
-      setSelected(null)
-      router.refresh()
+      try {
+        await markAsReviewed(selected.id, usedHint)
+        setSelected(null)
+        router.refresh()
+      } finally {
+        setSubmittingHint(null)
+      }
     })
   }
 
@@ -148,9 +148,9 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
+          <div className="flex items-center gap-3 pt-1 flex-wrap">
             <button
-              onClick={handleMarkReviewed}
+              onClick={() => handleMarkReviewed(false)}
               disabled={isPending}
               className="px-4 py-2 rounded-lg text-sm font-medium text-sky-950
                 bg-sky-300 hover:bg-sky-200
@@ -158,20 +158,29 @@ export default function ReviewCard({ problems }: { problems: Problem[] }) {
                 transition-all duration-200 active:scale-[0.97] cursor-pointer
                 shadow-[0_2px_16px_rgba(125,211,252,0.55)]"
             >
-              {isPending ? 'Saving…' : 'Mark as Reviewed'}
+              {submittingHint === false ? 'Saving…' : 'Mark Reviewed'}
+            </button>
+            <button
+              onClick={() => handleMarkReviewed(true)}
+              disabled={isPending}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700
+                bg-amber-100 hover:bg-amber-200 border border-amber-200
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transition-all duration-200 active:scale-[0.97] cursor-pointer"
+            >
+              {submittingHint === true ? 'Saving…' : 'Mark Reviewed with Hint'}
             </button>
             <button
               onClick={() => setSelected(null)}
+              disabled={isPending}
               className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600
                 hover:text-slate-900 hover:bg-slate-100
                 border border-slate-200
+                disabled:opacity-50 disabled:cursor-not-allowed
                 transition-all duration-200 active:scale-[0.97] cursor-pointer"
             >
               Dismiss
             </button>
-            {hasRevealedHint && (
-              <span className="text-xs text-amber-600">Will log as reviewed with hint</span>
-            )}
           </div>
         </div>
       )}
