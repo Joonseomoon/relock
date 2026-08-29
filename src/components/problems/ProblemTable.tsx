@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/dialog'
 import ProblemForm from './ProblemForm'
 import { deleteProblemAction } from '@/lib/actions/problems'
+import { markAsReviewed } from '@/lib/actions/reviews'
 import type { Difficulty, Problem } from '@/types'
 
 const PAGE_SIZE = 20
@@ -112,6 +113,8 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
   const [addOpen, setAddOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Problem | null>(null)
   const [isDeleting, startTransition] = useTransition()
+  const [reviewingId, setReviewingId] = useState<string | null>(null)
+  const [, startReviewTransition] = useTransition()
 
   const allTopics = useMemo(() => {
     const set = new Set<string>()
@@ -151,6 +154,18 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
   function applySort(key: SortKey) {
     setSortKey(key)
     setPage(1)
+  }
+
+  function quickReview(problemId: string, usedHint: boolean) {
+    if (reviewingId) return
+    setReviewingId(problemId)
+    startReviewTransition(async () => {
+      try {
+        await markAsReviewed(problemId, usedHint)
+      } finally {
+        setReviewingId(null)
+      }
+    })
   }
 
   function confirmDelete() {
@@ -344,8 +359,17 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
 
       {/* Table */}
       <div className="glass-strong rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div>
+          <table className="w-full table-fixed text-sm">
+            <colgroup>
+              <col />
+              <col className="w-[84px]" />
+              {!hideTopics && <col className="w-[15%]" />}
+              {!hideTrickNotes && <col />}
+              <col className="w-[88px]" />
+              <col className="w-[108px]" />
+              <col className="w-[148px]" />
+            </colgroup>
             <thead>
               <tr className="border-b border-slate-200/60">
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Title</th>
@@ -382,7 +406,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
                     className={`group hover:bg-slate-50/70 transition-colors duration-150
                       ${i < paginated.length - 1 ? 'border-b border-slate-100/80' : ''}`}
                   >
-                    <td className="px-4 py-3 min-w-[160px] max-w-[220px]">
+                    <td className="px-4 py-3 break-words">
                       {problem.leetcode_url ? (
                         <a
                           href={problem.leetcode_url}
@@ -404,7 +428,7 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
                     </td>
 
                     {!hideTopics && (
-                      <td className="px-4 py-3 min-w-[140px] max-w-[200px]">
+                      <td className="px-4 py-3">
                         <div className="flex gap-1 flex-wrap">
                           {problem.topics.map((t) => (
                             <button
@@ -424,14 +448,14 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
                     )}
 
                     {!hideTrickNotes && (
-                      <td className="px-4 py-3 min-w-[260px] max-w-[500px]">
-                        <span className="text-xs text-slate-500 leading-relaxed whitespace-normal">
+                      <td className="px-4 py-3">
+                        <span className="text-xs text-slate-500 leading-relaxed whitespace-normal break-words">
                           {problem.trick_note ?? <span className="text-slate-300">—</span>}
                         </span>
                       </td>
                     )}
 
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <td className="px-4 py-3 text-right">
                       <span className="text-sm font-medium text-slate-700">{problem.solve_count}</span>
                       {problem.hint_count > 0 && (
                         <span
@@ -450,7 +474,35 @@ export default function ProblemTable({ problems }: { problems: Problem[] }) {
                     </td>
 
                     <td className="px-4 py-3">
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
+                        <button
+                          onClick={() => quickReview(problem.id, false)}
+                          disabled={reviewingId === problem.id}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-green-600 hover:bg-green-50 disabled:opacity-40 transition-all duration-150 active:scale-[0.97] cursor-pointer"
+                          title="Mark reviewed"
+                          aria-label={`Mark ${problem.title} as reviewed`}
+                        >
+                          {reviewingId === problem.id ? (
+                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => quickReview(problem.id, true)}
+                          disabled={reviewingId === problem.id}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 disabled:opacity-40 transition-all duration-150 active:scale-[0.97] cursor-pointer"
+                          title="Mark reviewed (used hint)"
+                          aria-label={`Mark ${problem.title} as reviewed with a hint`}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                          </svg>
+                        </button>
                         <button
                           onClick={() => setEditTarget(problem)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-150 active:scale-[0.97] cursor-pointer"
